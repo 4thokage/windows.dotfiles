@@ -1,6 +1,7 @@
 param (
     [string]$computerName = "Charon",
-    [bool]$skipWinDefender = $true
+    [bool]$setupWindowsDefender = $true,
+    [bool]$removeOneDrive = $true
 )
 # Check to see if we are currently running "as Administrator"
 if (!(Verify-Elevated)) {
@@ -20,13 +21,6 @@ Write-Host "Configuring System..." -ForegroundColor "Yellow"
 # Set Computer Name
 (Get-WmiObject Win32_ComputerSystem).Rename($computerName) | Out-Null
 
-## Set DisplayName for my account. Use only if you are not using a Microsoft Account
-#$myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
-#$user = Get-WmiObject Win32_UserAccount | Where {$_.Caption -eq $myIdentity.Name}
-#$user.FullName = "Jay Harris
-#$user.Put() | Out-Null
-#Remove-Variable user
-#Remove-Variable myIdentity
 
 # Enable Developer Mode
 Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" "AllowDevelopmentWithoutDevLicense" 1
@@ -443,10 +437,10 @@ Set-ItemProperty "HKLM:\Software\Policies\Microsoft\Windows\CloudContent" "Disab
 ### Lock Screen                                                               #
 ###############################################################################
 
-## Enable Custom Background on the Login / Lock Screen
-## Background file: C:\someDirectory\someImage.jpg
-## File Size Limit: 256Kb
-# Set-ItemProperty "HKLM:\Software\Policies\Microsoft\Windows\Personalization" "LockScreenImage" "C:\someDirectory\someImage.jpg"
+# Enable Custom Background on the Login / Lock Screen
+# Background file: C:\someDirectory\someImage.jpg
+# File Size Limit: 256Kb
+Set-ItemProperty "HKLM:\Software\Policies\Microsoft\Windows\Personalization" "LockScreenImage" "$home\wall.jpg"
 
 ###############################################################################
 ### Accessibility and Ease of Use                                             #
@@ -509,7 +503,7 @@ Set-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Policies\Microsoft\Windows\Delivery
 ###############################################################################
 ### Windows Defender                                                          #
 ###############################################################################
-if(!$skipWinDefender) 
+if($setupWindowsDefender) 
 {
     Write-Host "Configuring Windows Defender..." -ForegroundColor "Yellow"
 
@@ -520,6 +514,22 @@ if(!$skipWinDefender)
 
     # Disable automatic sample submission: Prompt: 0, Auto Send Safe: 1, Never: 2, Auto Send All: 3
     Set-MpPreference -SubmitSamplesConsent 2
+}
+
+
+################################################################################
+### OneDrive Removal                                                           #
+################################################################################
+if($removeOneDrive) {
+    Stop-Process -processname OneDrive, onedrive, 'Microsoft OneDrive' -ErrorAction SilentlyContinue
+    & 'C:\Windows\SysWOW64\OneDriveSetup.exe' /uninstall
+    Remove-Item -Recurse -Force $env:APPDATA'\Microsoft\OneDrive' -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force $env:USERPROFILE'\OneDrive' -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force $env:PROGRAMDATA'\Microsoft OneDrive' -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force 'C:\OneDriveTemp' -ErrorAction SilentlyContinue
+
+    Remove-Item -Path 'HKCU:/CLSID/{018D5C66-4533-4307-9B53-224DE2ED1FE6}' -ErrorAction SilentlyContinue
+    Remove-Item -Path 'HKCU:/Wow6432Node/CLSID/{018D5C66-4533-4307-9B53-224DE2ED1FE6}' -ErrorAction SilentlyContinue
 }
 
 ###############################################################################
@@ -601,7 +611,7 @@ Set-ItemProperty $_ "ScreenBufferSize"     0x0BB80078 # 3000h x 120w
 # Percentage of Character Space for Cursor: 25: Small, 50: Medium, 100: Large
 Set-ItemProperty $_ "CursorSize"           100
 # Name of display font
-Set-ItemProperty $_ "FaceName"             "Source Code Pro"
+Set-ItemProperty $_ "FaceName"             "JetBrains Mono"
 # Font Family: Raster: 0, TrueType: 54
 Set-ItemProperty $_ "FontFamily"           54
 # Dimensions of font character in pixels, not Points: 8-byte; 4b height, 4b width. 0: Auto
