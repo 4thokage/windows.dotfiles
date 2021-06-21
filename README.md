@@ -1,6 +1,6 @@
 # dotfiles for Windows
 
-A collection of PowerShell files for Windows, including common application installation through `winget`. 
+A collection of PowerShell files for Windows, including common application installation through `chocolatey`. 
 
 ## Installation
 
@@ -8,16 +8,21 @@ A collection of PowerShell files for Windows, including common application insta
 
 From PowerShell:
 ```posh
-git clone https://github.com/4thokage/windows.dotfiles.git dotfiles-windows; cd dotfiles-windows; . .\bootstrap.ps1
+git clone https://github.com/4thokage/windows.dotfiles.git
+```
+```
+cd windows.dotfiles
+```
+```
+. .\bootstrap.ps1 [-Windows , -Apps] -ComputerName "Cheons"
 ```
 
-To update your settings, `cd` into your local `dotfiles-windows` repository within PowerShell and then:
+To update your settings, `cd` into your local `windows.dotfiles` repository within PowerShell and then:
 
 ```posh
 . .\bootstrap.ps1
 ```
 
-Note: You must have your execution policy set to unrestricted (or at least in bypass) for this to work: `Set-ExecutionPolicy Unrestricted`.
 
 ### Git-free install
 

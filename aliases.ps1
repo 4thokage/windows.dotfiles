@@ -13,6 +13,17 @@ ${function:dt} = { Set-Location ~\Desktop }
 ${function:docs} = { Set-Location ~\Documents }
 ${function:dl} = { Set-Location C:\downloads }
 
+# Last command output
+${function:_} = { $ll }
+
+# PowerShell parameter completion shim for the dotnet CLI
+Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
+  param($commandName, $wordToComplete, $cursorPosition)
+      dotnet complete --position $cursorPosition "$wordToComplete" | ForEach-Object {
+          [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+      }
+}
+
 # Missing Bash aliases
 Set-Alias time Measure-Command
 
@@ -34,6 +45,8 @@ if (Get-Command ls.exe -ErrorAction SilentlyContinue | Test-Path) {
     # List only directories
     ${function:lsd} = { Get-ChildItem -Directory -Force @args }
 } else {
+    ${function:l} = { Get-ChildItemColor -option AllScope }
+    ${function:ls} = { Get-ChildItemColorFormatWide -option AllScope } 
     # List all files, including hidden files
     ${function:la} = { ls -Force @args }
     # List only directories
@@ -68,11 +81,18 @@ Set-Alias cleandisks Clean-Disks
 Set-Alias reload Reload-Powershell
 
 # http://xkcd.com/530/
+Set-Alias volume Set-SoundVolume
 Set-Alias mute Set-SoundMute
 Set-Alias unmute Set-SoundUnmute
 
 # Update installed Ruby Gems, NPM, and their installed packages.
 Set-Alias update System-Update
 
-# Set GVim as default vim
-Set-Alias vim gvim
+# Set neovim as default vim
+Set-Alias vim nvim
+
+Set-Alias open Invoke-Item
+
+Set-Alias myip GetMyIp
+
+Set-Alias -Name openssl -Value "C:\Program Files\Git\usr\bin\openssl.exe"
