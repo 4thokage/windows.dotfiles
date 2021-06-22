@@ -107,6 +107,7 @@ choco install treesizefree             --limit-output
 choco install google-drive-file-stream --limit-output
 choco install winscp                   --limit-output
 choco install keepass                  --limit-output
+choco install unity                    --limit-output
 
 
 Refresh-Environment
