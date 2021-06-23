@@ -16,6 +16,9 @@ cd windows.dotfiles
 ```
 . .\bootstrap.ps1 [-Windows , -Apps] -ComputerName "Cheons"
 ```
+> "-Apps" will install applications with chocolatey (scripts/apps.ps1)
+
+> "-Windows" will setup some windows defaults
 
 To update your settings, `cd` into your local `windows.dotfiles` repository within PowerShell and then:
 
