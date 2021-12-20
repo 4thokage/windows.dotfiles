@@ -359,23 +359,20 @@ GetAbsoluteLayout(Window, Layout)
     . "`r`n  Height: " . Height)
 
   ; Window borders (Windows 10)
-  If (WindowHasBorder(Window))
-  {
-    SysGet, BorderWidth, 32
-    SysGet, BorderHeight, 33
-    NewLeft := Left - BorderWidth
-    NewWidth := Width + (BorderWidth * 1.5)
-    NewHeight := Height + BorderHeight
+  SysGet, BorderWidth, 32
+  SysGet, BorderHeight, 33
+  NewLeft := Left - BorderWidth
+  NewWidth := Width + (BorderWidth * 1.5)
+  NewHeight := Height + BorderHeight
 
-    Log("Adjusting for window borders:"
-      . "`r`n  Left: " . Left . " - " . BorderWidth . " = " . NewLeft
-      . "`r`n  Width: " . Width . " + " . (BorderWidth * 1.5) . " = " . NewWidth
-      . "`r`n  Height: " . Height . " + " . BorderHeight . " = " . NewHeight)
+  Log("Adjusting for window borders:"
+  . "`r`n  Left: " . Left . " - " . BorderWidth . " = " . NewLeft
+  . "`r`n  Width: " . Width . " + " . (BorderWidth * 1.5) . " = " . NewWidth
+  . "`r`n  Height: " . Height . " + " . BorderHeight . " = " . NewHeight)
 
-    Left := NewLeft
-    Width := NewWidth
-    Height := NewHeight
-  }
+  Left := NewLeft
+  Width := NewWidth
+  Height := NewHeight
 
   Absolute := {}
   Absolute.Monitor := Monitor
@@ -854,26 +851,7 @@ Info(Message)
 ; Writes the given text to a log file, if logging is enabled
 Log(Text, PrependBlankLine := True)
 {
-  Try
-  {
-    global LoggingEnabled
-
-    If (LoggingEnabled)
-    {
-      Text := Text . "`r`n"
-
-      If (PrependBlankLine)
-        Text := "`r`n" . Text
-
-      FileCreateDir, logs
-      FileAppend, %Text%, logs\log.txt
-    }
-  }
-  Catch Exception
-  {
-    Message := "Error while writing to the log file: " . Exception.Message
-    MsgBox, 16, AutoHotKey, %Message%
-  }
+; Bypass, logging sucks
 }
 
 

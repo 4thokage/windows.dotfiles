@@ -62,7 +62,7 @@ else {
 # Python & ruby
 if (Check-Command -cmdname 'py') {
   choco update python              --limit-output
-  
+
 }
 else {
   Write-Host ""
@@ -114,7 +114,7 @@ Refresh-Environment
 
 # Default to latest Node.js LTS
 nvm on
-$nodeLtsVersion = "14.6.0"
+$nodeLtsVersion = "16.x"
 nvm install $nodeLtsVersion
 nvm use $nodeLtsVersion
 Remove-Variable nodeLtsVersion
@@ -123,14 +123,15 @@ gem pristine --all --env-shebang
 
 Write-Host "Installing Node Packages..." -ForegroundColor Green
 if (which npm) {
-    npm install -g cross-env 
+    npm install -g cross-env
     npm install -g yarn
     npm install -g rimraf
+    npm install -g serve
     npm update npm
 }
 
 # -----------------------------------------------------------------------------
-# Install modules 
+# Install modules
 Write-Host "Installing PowerShell Modules..." -ForegroundColor Green
 if (!(Get-PackageProvider NuGet -Force -ErrorAction SilentlyContinue)) {
     Install-PackageProvider NuGet -Force

@@ -23,7 +23,6 @@
                 "name": "Ubuntu",
                 "colorScheme": "Atom One Dark",
                 "source": "Windows.Terminal.Wsl"
-                // "startingDirectory": "//wsl$/Ubuntu-20.04/home/garrytrinder/"
             },
             {
                 "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",

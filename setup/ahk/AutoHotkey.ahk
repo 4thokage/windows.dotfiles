@@ -20,6 +20,5 @@ LoggingEnabled := False
 ; This prevents windows from being mistakenly resized too small to see
 MinimumWindowSize := 100
 
-#Include utils.ahk
 #Include advanced-window-snap.ahk
 #Include remap-keys.ahk
