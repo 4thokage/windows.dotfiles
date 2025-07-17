@@ -1,6 +1,25 @@
-# Profile for the Microsoft.Powershell
-# ===========
+# Profile for Microsoft.PowerShell
 
-Push-Location (Split-Path -parent $profile)
-"components","functions","aliases","exports","extra" | Where-Object {Test-Path "$_.ps1"} | ForEach-Object -process {Invoke-Expression ". .\$_.ps1"}
-Pop-Location
+Push-Location -ErrorAction Stop
+
+try {
+    # Change to profile directory
+    Set-Location -Path (Split-Path -Parent $PROFILE) -ErrorAction Stop
+
+    $scripts = @(
+      "functions.ps1",
+      "aliases.ps1",
+      "exports.ps1"
+      )
+
+    foreach ($script in $scripts) {
+        if (Test-Path $script) {
+            # Dot-source the script safely
+            . ".\$script"
+        }
+    }
+}
+finally {
+    # Return to original directory regardless of errors
+    Pop-Location
+}

@@ -12,9 +12,10 @@ ${function:gdrive} = { Set-Location '~\Google Drive' }
 ${function:dt} = { Set-Location ~\Desktop }
 ${function:docs} = { Set-Location ~\Documents }
 ${function:dl} = { Set-Location C:\downloads }
+${function:prog} = { Set-Location C:\work\programming }
 
-# Last command output
-${function:_} = { $ll }
+# Last command exit code
+${function:_} = { $? }
 
 # PowerShell parameter completion shim for the dotnet CLI
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
@@ -30,33 +31,20 @@ Set-Alias time Measure-Command
 # Correct PowerShell Aliases if tools are available (aliases win if set)
 # WGet: Use `wget.exe` if available
 if (Get-Command wget.exe -ErrorAction SilentlyContinue | Test-Path) {
-  rm alias:wget -ErrorAction SilentlyContinue
+  Remove-Item alias:wget -ErrorAction SilentlyContinue
 }
 
-# Directory Listing: Use `ls.exe` if available
-if (Get-Command ls.exe -ErrorAction SilentlyContinue | Test-Path) {
-    rm alias:ls -ErrorAction SilentlyContinue
-    # Set `ls` to call `ls.exe` and always use --color
-    ${function:ls} = { ls.exe --color @args }
-    # List all files in long format
-    ${function:l} = { ls -lF @args }
-    # List all files in long format, including hidden files
-    ${function:la} = { ls -laF @args }
-    # List only directories
-    ${function:lsd} = { Get-ChildItem -Directory -Force @args }
-} else {
-    ${function:l} = { Get-ChildItemColor -option AllScope }
-    ${function:ls} = { Get-ChildItemColorFormatWide -option AllScope } 
-    # List all files, including hidden files
-    ${function:la} = { ls -Force @args }
-    # List only directories
-    ${function:lsd} = { Get-ChildItem -Directory -Force @args }
-}
+${function:l} = { Get-ChildItemColor -option AllScope }
+${function:ls} = { Get-ChildItemColorFormatWide -option AllScope }
+# List all files, including hidden files
+${function:la} = { Get-ChildItem -Force @args }
+# List only directories
+${function:lsd} = { Get-ChildItem -Directory -Force @args }
 
 # curl: Use `curl.exe` if available
 if (Get-Command curl.exe -ErrorAction SilentlyContinue | Test-Path) {
-    rm alias:curl -ErrorAction SilentlyContinue
-    # Set `ls` to call `ls.exe` and always use --color
+    Remove-Item alias:curl -ErrorAction SilentlyContinue
+
     ${function:curl} = { curl.exe @args }
     # Gzip-enabled `curl`
     ${function:gurl} = { curl --compressed @args }
@@ -77,14 +65,6 @@ Set-Alias emptytrash Empty-RecycleBin
 # Cleanup old files all drives
 Set-Alias cleandisks Clean-Disks
 
-# Reload the shell
-Set-Alias reload Reload-Powershell
-
-# http://xkcd.com/530/
-Set-Alias volume Set-SoundVolume
-Set-Alias mute Set-SoundMute
-Set-Alias unmute Set-SoundUnmute
-
 # Update installed Ruby Gems, NPM, and their installed packages.
 Set-Alias update System-Update
 
@@ -94,5 +74,3 @@ Set-Alias vim nvim
 Set-Alias open Invoke-Item
 
 Set-Alias myip GetMyIp
-
-Set-Alias -Name openssl -Value "C:\Program Files\Git\usr\bin\openssl.exe"
