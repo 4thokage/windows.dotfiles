@@ -10,7 +10,8 @@ function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:ED
 function Enter-AdminPSSession {
     Start-Process -Verb RunAs (Get-Process -Id $PID).Path
 }
-function GetMyIp {curl -L tool.lu/ip}
+function GetMyIp {curl icanhazip.com}
+
 function GitLogPretty {
   git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all
 }
@@ -34,20 +35,12 @@ function System-Update() {
     npm update -g
 }
 
-# Reload the Shell
-function Reload-Powershell {
-    $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
-    $newProcess.Arguments = "-nologo";
-    [System.Diagnostics.Process]::Start($newProcess);
-    exit
-}
-
 # Download a file into a temporary folder
 function curlex($url) {
     $uri = new-object system.uri $url
-    $filename = $name = $uri.segments | Select-Object -Last 1
+    $filename = $uri.segments | Select-Object -Last 1
     $path = join-path $env:Temp $filename
-    if( test-path $path ) { rm -force $path }
+    if( test-path $path ) { Remove-Item -force $path }
 
     (new-object net.webclient).DownloadFile($url, $path)
 
@@ -57,85 +50,7 @@ function curlex($url) {
 # Empty the Recycle Bin on all drives
 function Empty-RecycleBin {
     $RecBin = (New-Object -ComObject Shell.Application).Namespace(0xA)
-    $RecBin.Items() | %{Remove-Item $_.Path -Recurse -Confirm:$false}
-}
-
-# Sound Volume
-function Get-SoundVolume {
-  <#
-  .SYNOPSIS
-  Get audio output volume.
-  .DESCRIPTION
-  The Get-SoundVolume cmdlet gets the current master volume of the default audio output device. The returned value is an integer between 0 and 100.
-  .LINK
-  Set-SoundVolume
-  .LINK
-  Set-SoundMute
-  .LINK
-  Set-SoundUnmute
-  .LINK
-  https://github.com/4thokage/windows.dotfiles/
-  #>
-  [math]::Round([Audio]::Volume * 100)
-}
-function Set-SoundVolume([Parameter(mandatory=$true)][Int32] $Volume) {
-  <#
-  .SYNOPSIS
-  Set audio output volume.
-  .DESCRIPTION
-  The Set-SoundVolume cmdlet sets the current master volume of the default audio output device to a value between 0 and 100.
-  .PARAMETER Volume
-  An integer between 0 and 100.
-  .EXAMPLE
-  Set-SoundVolume 65
-  Sets the master volume to 65%.
-  .EXAMPLE
-  Set-SoundVolume -Volume 100
-  Sets the master volume to a maximum 100%.
-  .LINK
-  Get-SoundVolume
-  .LINK
-  Set-SoundMute
-  .LINK
-  Set-SoundUnmute
-  .LINK
-  https://github.com/4thokage/windows.dotfiles/
-  #>
-  [Audio]::Volume = ($Volume / 100)
-}
-function Set-SoundMute {
-  <#
-  .SYNOPSIS
-  Mote audio output.
-  .DESCRIPTION
-  The Set-SoundMute cmdlet mutes the default audio output device.
-  .LINK
-  Get-SoundVolume
-  .LINK
-  Set-SoundVolume
-  .LINK
-  Set-SoundUnmute
-  .LINK
-  https://github.com/4thokage/windows.dotfiles/
-  #>
-   [Audio]::Mute = $true
-}
-function Set-SoundUnmute {
-  <#
-  .SYNOPSIS
-  Unmote audio output.
-  .DESCRIPTION
-  The Set-SoundUnmute cmdlet unmutes the default audio output device.
-  .LINK
-  Get-SoundVolume
-  .LINK
-  Set-SoundVolume
-  .LINK
-  Set-SoundMute
-  .LINK
-  https://github.com/4thokage/windows.dotfiles/
-  #>
-   [Audio]::Mute = $false
+    $RecBin.Items() | ForEach-Object{Remove-Item $_.Path -Recurse -Confirm:$false}
 }
 
 
@@ -286,24 +201,23 @@ function Unzip-File {
 }
 
 Function Set-WallPaper {
- 
 <#
- 
+
     .SYNOPSIS
     Applies a specified wallpaper to the current user's desktop
-    
+   
     .PARAMETER Image
     Provide the exact path to the image
- 
+
     .PARAMETER Style
     Provide wallpaper style (Example: Fill, Fit, Stretch, Tile, Center, or Span)
-  
+ 
     .EXAMPLE
     Set-WallPaper -Image "C:\Wallpaper\Default.jpg"
     Set-WallPaper -Image "C:\Wallpaper\Background.jpg" -Style Fit
-  
-#>
  
+#>
+
 param (
     [parameter(Mandatory=$True)]
     # Provide path to image
@@ -313,35 +227,35 @@ param (
     [ValidateSet('Fill', 'Fit', 'Stretch', 'Tile', 'Center', 'Span')]
     [string]$Style
 )
- 
+
 $WallpaperStyle = Switch ($Style) {
-  
+ 
     "Fill" {"10"}
     "Fit" {"6"}
     "Stretch" {"2"}
     "Tile" {"0"}
     "Center" {"0"}
     "Span" {"22"}
-  
+ 
 }
- 
+
 If($Style -eq "Tile") {
- 
+
     New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
     New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 1 -Force
- 
+
 }
 Else {
- 
+
     New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -PropertyType String -Value $WallpaperStyle -Force
     New-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -PropertyType String -Value 0 -Force
- 
+
 }
- 
+
 Add-Type -TypeDefinition @" 
 using System; 
 using System.Runtime.InteropServices;
-  
+ 
 public class Params
 { 
     [DllImport("User32.dll",CharSet=CharSet.Unicode)] 
@@ -351,12 +265,13 @@ public class Params
                                                    Int32 fuWinIni);
 }
 "@ 
-  
+ 
     $SPI_SETDESKWALLPAPER = 0x0014
     $UpdateIniFile = 0x01
     $SendChangeEvent = 0x02
-  
+ 
     $fWinIni = $UpdateIniFile -bor $SendChangeEvent
-  
+ 
     $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
+    return ret
 }
