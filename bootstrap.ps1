@@ -1,32 +1,29 @@
 param (
-    [string]$computerName,
-    [switch]$Windows,
-    [switch]$Apps
+    [string]$ComputerName,             # Optional: New name for the PC
+    [switch]$Windows,                  # Optional: Run Windows system configuration
+    [switch]$Apps,                     # Optional: Install developer toolbox apps
+    [switch]$Debloat                   # Optional: Call a remote debloater script - https://github.com/Raphire/Win11Debloat
 )
 
-$profileDir = Split-Path -parent $profile
-$componentDir = Join-Path $profileDir "components"
+#$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+#$ProfileDir = Split-Path -Parent $PROFILE
+#$ComponentDir = Join-Path $ProfileDir "components"
 
-if($computerName -ne '') {
-    Write-Host "Renaming PC..." -ForegroundColor Yellow
-    (Get-WmiObject Win32_ComputerSystem).Rename($computerName) | Out-Null
+if ($ComputerName) {
+    Write-Host "Renaming PC to '$ComputerName'..." -ForegroundColor Yellow
+    try {
+        Rename-Computer -NewName $ComputerName -Force -ErrorAction Stop
+        Write-Host "Computer renamed successfully. A restart may be required." -ForegroundColor Green
+    } catch {
+        Write-Host "Failed to rename computer: $_" -ForegroundColor Red
+    }
 }
 
-New-Item $profileDir -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item $componentDir -ItemType Directory -Force -ErrorAction SilentlyContinue
-
-Copy-Item -Path ./*.ps1 -Destination $profileDir -Exclude "bootstrap.ps1"
-Copy-Item -Path ./components/** -Destination $componentDir -Include **
-Copy-Item -Path ./home/** -Destination $home -Include **
-
-Remove-Variable componentDir
-Remove-Variable profileDir
-
-if($PSBoundParameters.ContainsKey("Windows")) {
-    Write-Host "Spawning windows system configuration script..." -ForegroundColor Yellow
-    Invoke-Expression ". .\scripts\windows.ps1"
-}
-if($PSBoundParameters.ContainsKey("Apps")) {
-    Write-Host "Will install dev toolbox apps..." -ForegroundColor Green
-    Invoke-Expression ". .\scripts\apps.ps1"
+if ($Debloat) {
+    Write-Host "Fetching and executing remote debloater script..." -ForegroundColor Magenta
+    try {
+        & ([scriptblock]::Create((irm "https://debloat.raphi.re/")))  # Caution: Trust the source!
+    } catch {
+        Write-Host "Failed to fetch or run remote debloater: $_" -ForegroundColor Red
+    }
 }
